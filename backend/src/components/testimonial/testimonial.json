@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_testimonial_testimonials",
+  "info": {
+    "displayName": "testimonial",
+    "icon": "heart"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "quote": {
+      "type": "text"
+    }
+  },
+  "config": {}
+}
