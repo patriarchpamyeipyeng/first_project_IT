@@ -1,104 +1,94 @@
-// lib/api.ts
+// src/lib/api.ts
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
 
-export async function fetchHomepage() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/homepage?populate=*`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`Failed to fetch homepage: ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error(err);
-    return { data: null }; // fallback if fetch fails
-  }
-}
-
-export async function fetchServices() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/services?populate=*`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`Failed to fetch services: ${res.status}`);
-    const json = await res.json();
-    return { data: json.data || [] }; // always return array
-  } catch (err) {
-    console.error(err);
-    return { data: [] };
-  }
-}
-export async function fetchTestimonials() {
-  const res = await fetch("http://localhost:1337/api/testimonials?populate=*");
-  const data = await res.json();
-  return data.data;
-}
-
-// ...existing code...
-export async function fetchContactInfo() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/contact-info?populate=*`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`Failed to fetch contact info: ${res.status}`);
-    return res.json(); // single type returns an object
-  } catch (err) {
-    console.error(err);
-    return { data: null };
-  }
-}
-// ...existing code...
-
-// helper for images
+/**
+ * Build absolute URL for media returned by Strapi
+ */
 export function mediaURL(path?: string) {
   if (!path) return "";
-  return `${process.env.NEXT_PUBLIC_STRAPI_URL}${path}`;
-}
-// Fetch about page data
-export async function fetchAbout() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/about?populate[team][populate]=photo&populate=images`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`Failed to fetch about: ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error(err);
-    return { data: null };
-  }
-}
-// Fetch bookings data
-export async function fetchBookings() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/bookings?populate=*`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`Failed to fetch bookings: ${res.status}`);
-    const json = await res.json();
-    return { data: json.data || [] };
-  } catch (err) {
-    console.error(err);
-    return { data: [] };
-  }
+  if (path.startsWith("http")) return path;
+  return `${STRAPI_URL}${path}`;
 }
 
-export async function createBooking(bookingData: any) {
+/**
+ * Generic request helper.
+ * - returns parsed JSON (the whole response body)
+ * - logs helpful info when responses are not OK
+ */
+async function request(endpoint: string, opts: RequestInit = {}) {
+  const url = endpoint.startsWith("http") ? endpoint : `${STRAPI_URL}/api/${endpoint}`;
+  const headers = {
+    ...(opts.headers || {}),
+    // add content-type only when body is present
+  } as Record<string, string>;
+
+  const options: RequestInit = {
+    ...opts,
+    headers,
+    cache: "no-store",
+  };
+
+  const res = await fetch(url, options);
+  const text = await res.text();
+  let json: any;
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/bookings`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: bookingData }),
-      }
-    );
-    if (!res.ok) throw new Error(`Failed to create booking: ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error(err);
-    return null;
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    json = text;
   }
+
+  if (!res.ok) {
+    console.error(`API ${url} failed (${res.status})`, json ?? text);
+    // If Strapi returns an error object, try to surface it
+    const msg = json?.error?.message || json?.message || `Request failed: ${res.status}`;
+    throw new Error(msg);
+  }
+
+  return json;
+}
+
+/* ---------- GET helpers (return full response JSON) ---------- */
+
+/** Homepage (single type) */
+export async function fetchHomepage() {
+  return request("homepage?populate=*");
+}
+
+/** About (single type) */
+export async function fetchAbout() {
+  return request("about?populate=*");
+}
+
+/** ContactInfo (single type) */
+export async function fetchContactInfo() {
+  return request("contact-info?populate=*");
+}
+
+/** Services (collection) */
+export async function fetchServices() {
+  return request("services?populate=*");
+}
+
+/** Testimonials (collection) */
+export async function fetchTestimonials() {
+  return request("testimonials?populate=*");
+}
+
+/* ---------- POST helpers ---------- */
+
+/** Generic POST to Strapi (wraps payload as { data }) */
+export async function postAPI(endpoint: string, data: any) {
+  return request(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data }),
+  });
+}
+
+/** Convenience wrappers */
+export async function createBooking(payload: any) {
+  return postAPI("bookings", payload);
+}
+export async function sendContact(payload: any) {
+  return postAPI("contacts", payload);
 }

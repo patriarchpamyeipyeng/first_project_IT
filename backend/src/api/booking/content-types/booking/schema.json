@@ -15,10 +15,11 @@
       "type": "string",
       "required": true
     },
-    "service": {
+    "services": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::service.service"
+      "relation": "oneToMany",
+      "target": "api::service.service",
+      "mappedBy": "booking"
     },
     "email": {
       "type": "string",
@@ -40,6 +41,15 @@
         "confirmed",
         "cancelled"
       ]
+    },
+    "vehicleType": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "blocks"
     }
   }
 }

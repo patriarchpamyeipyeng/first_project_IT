@@ -1,5 +1,4 @@
 "use client";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { createBooking, fetchServices } from "@/lib/api";
@@ -57,15 +56,15 @@ export default function BookingPage() {
 
   return (
     <>
-      <main className="p-8 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-4">Book a Truck Service</h1>
+      <main className="max-w-4xl p-8 mx-auto">
+        <h1 className="mb-4 text-3xl font-bold">Book a Truck Service</h1>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
             name="name"
             value={form.name}
             onChange={handleChange}
             placeholder="Name"
-            className="border p-2 w-full"
+            className="w-full p-2 border"
             required
           />
           <input
@@ -73,7 +72,7 @@ export default function BookingPage() {
             value={form.email}
             onChange={handleChange}
             placeholder="Email"
-            className="border p-2 w-full"
+            className="w-full p-2 border"
             required
           />
           <input
@@ -81,7 +80,7 @@ export default function BookingPage() {
             value={form.phone}
             onChange={handleChange}
             placeholder="Phone"
-            className="border p-2 w-full"
+            className="w-full p-2 border"
             required
           />
           <input
@@ -89,14 +88,14 @@ export default function BookingPage() {
             type="datetime-local"
             value={form.date}
             onChange={handleChange}
-            className="border p-2 w-full"
+            className="w-full p-2 border"
             required
           />
           <select
             name="service"
             value={form.service}
             onChange={handleChange}
-            className="border p-2 w-full"
+            className="w-full p-2 border"
             required
           >
             <option value="">Select a service</option>
@@ -106,7 +105,7 @@ export default function BookingPage() {
               </option>
             ))}
           </select>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+          <button type="submit" className="px-4 py-2 text-white bg-blue-600 rounded">
             Submit Booking
           </button>
         </form>

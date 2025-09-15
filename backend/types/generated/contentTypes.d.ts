@@ -426,15 +426,18 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
       'api::booking.booking'
     > &
       Schema.Attribute.Private;
+    location: Schema.Attribute.String;
     name: Schema.Attribute.String & Schema.Attribute.Required;
+    notes: Schema.Attribute.Blocks;
     phone: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    service: Schema.Attribute.Relation<'oneToOne', 'api::service.service'>;
+    services: Schema.Attribute.Relation<'oneToMany', 'api::service.service'>;
     stati: Schema.Attribute.Enumeration<['pending', 'confirmed', 'cancelled']> &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    vehicleType: Schema.Attribute.String;
   };
 }
 
@@ -466,6 +469,37 @@ export interface ApiContactInfoContactInfo extends Struct.SingleTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     whatsapp: Schema.Attribute.String;
+  };
+}
+
+export interface ApiContactContact extends Struct.CollectionTypeSchema {
+  collectionName: 'contacts';
+  info: {
+    displayName: 'Contact';
+    pluralName: 'contacts';
+    singularName: 'contact';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::contact.contact'
+    > &
+      Schema.Attribute.Private;
+    message: Schema.Attribute.Blocks;
+    name: Schema.Attribute.String;
+    phone: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -516,6 +550,7 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    booking: Schema.Attribute.Relation<'manyToOne', 'api::booking.booking'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1078,6 +1113,7 @@ declare module '@strapi/strapi' {
       'api::about.about': ApiAboutAbout;
       'api::booking.booking': ApiBookingBooking;
       'api::contact-info.contact-info': ApiContactInfoContactInfo;
+      'api::contact.contact': ApiContactContact;
       'api::homepage.homepage': ApiHomepageHomepage;
       'api::service.service': ApiServiceService;
       'api::testimonial.testimonial': ApiTestimonialTestimonial;

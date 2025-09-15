@@ -26,6 +26,12 @@
         "videos",
         "audios"
       ]
+    },
+    "booking": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::booking.booking",
+      "inversedBy": "services"
     }
   }
 }
