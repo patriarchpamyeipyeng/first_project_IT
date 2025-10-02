@@ -27,30 +27,44 @@ export default async function ContactPage() {
           <div className="space-y-3">
             <p className="flex items-center gap-3">
               <FaPhone className="text-blue-600" />
-              <a href={`tel:${attrs.phone}`} className="hover:underline">
-                {attrs.phone}
-              </a>
+          <a
+            href="tel:08036798700"
+            className="px-6 py-3 font-semibold text-blue-700 bg-white rounded-lg shadow hover:bg-gray-200"
+          >
+             Call Now
+          </a>
             </p>
             <p className="flex items-center gap-3">
               <FaEnvelope className="text-blue-600" />
-              <a href={`mailto:${attrs.email}`} className="hover:underline">
-                {attrs.email}
-              </a>
+  <a
+    href="mailto:truckviewent@gmail.com"
+    className="px-6 py-3 font-semibold text-white bg-blue-600 rounded-lg shadow hover:bg-blue-700"
+  >
+     Email Us
+  </a>
             </p>
             <p className="flex items-center gap-3">
               <FaMapMarkerAlt className="text-blue-600" />
-              {attrs.address}
+               <a
+    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(attrs.address || "TruckView Enterprise")}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="px-6 py-3 font-semibold text-white bg-red-600 rounded-lg shadow hover:bg-red-700"
+  >
+    Find Us
+  </a>
+  <span className="ml-2">{attrs.address}</span>
             </p>
             <p className="flex items-center gap-3">
               <FaWhatsapp className="text-green-500" />
-              <a
-                href={`https://wa.me/234${attrs.phone?.replace(/^0/, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline"
-              >
-                Chat with us on WhatsApp
-              </a>
+                        <a
+            href="https://wa.me/2348036798700"
+            className="px-6 py-3 font-semibold text-white bg-green-500 rounded-lg shadow hover:bg-green-600"
+          >
+          WhatsApp
+          </a>
+
+      
             </p>
           </div>
 
@@ -59,7 +73,7 @@ export default async function ContactPage() {
             <h3 className="mb-2 text-xl font-semibold">Business Hours</h3>
             <ul className="text-gray-600">
               <li>Mon – Sat: 8:00am – 6:00pm</li>
-              <li>Sunday: Closed</li>
+              <li>Sunday: Closed (Except for Emergencies)</li>
             </ul>
           </div>
 

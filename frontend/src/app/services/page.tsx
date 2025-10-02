@@ -1,9 +1,9 @@
-import ServiceCard from "@/components/ServiceCard";
-import { fetchServices, mediaURL } from "@/lib/api";
+import ServiceSection from "@/components/ServiceSection";
+import { fetchServices } from "@/lib/api";
 
 export default async function ServicesPage() {
-  const services = await fetchServices();
-  const svc = services?.data || [];
+  const servicesRes = await fetchServices();
+  const services = servicesRes?.data || [];
 
   return (
     <main className="min-h-screen py-12 bg-gray-50">
@@ -12,26 +12,8 @@ export default async function ServicesPage() {
           Our <span className="text-blue-600">Services</span>
         </h1>
 
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {svc.map((service: any) => {
-            const attrs = service.attributes || service;
-            const iconUrl =
-              attrs.icon?.data?.attributes?.url
-                ? mediaURL(attrs.icon.data.attributes.url)
-                : attrs.icon?.url
-                  ? mediaURL(attrs.icon.url)
-                  : undefined;
-
-            return (
-              <ServiceCard
-                key={service.id}
-                name={attrs.name}
-                description={attrs.description}
-                icon={iconUrl}
-              />
-            );
-          })}
-        </div>
+        {/* Pass services to client component */}
+        <ServiceSection services={services} />
       </div>
     </main>
   );

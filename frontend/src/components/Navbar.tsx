@@ -16,7 +16,8 @@ export default function Navbar() {
       <div className="flex items-center justify-between max-w-6xl p-4 mx-auto">
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold text-blue-500">
-          TruckView
+          Truck-View Global Enterprise<br />
+          <span className="text-sm font-normal"><i>In God We Trust</i></span>
         </Link>
 
         {/* Desktop Menu */}

@@ -1,21 +1,35 @@
+"use client";
+
 type ServiceCardProps = {
   name: string;
   description?: string;
   icon?: string | null;
+  onSelect?: () => void;
 };
 
-export default function ServiceCard({ name, description, icon }: ServiceCardProps) {
+export default function ServiceCard({
+  name,
+  description,
+  icon,
+  onSelect,
+}: ServiceCardProps) {
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 flex flex-col items-center text-center">
+    <div
+      onClick={onSelect}
+      role={onSelect ? "button" : undefined}
+      className="flex flex-col items-center p-6 text-center transition transform bg-white shadow-md cursor-pointer rounded-2xl hover:shadow-xl hover:-translate-y-1"
+    >
       {icon && (
         <img
           src={icon}
           alt={name}
-          className="w-20 h-20 mb-4 object-contain"
+          className="object-contain w-20 h-20 mb-4"
         />
       )}
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">{name}</h2>
-      <p className="text-gray-600 text-sm">{description || "No description available."}</p>
+      <h2 className="mb-2 text-xl font-semibold text-gray-800">{name}</h2>
+      <p className="text-sm text-gray-600">
+        {description || "No description available."}
+      </p>
     </div>
   );
 }

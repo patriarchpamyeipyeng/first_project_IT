@@ -1,10 +1,12 @@
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-20 bg-white border-t">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <p className="text-sm text-gray-600">© {year} TruckView. All rights reserved.</p>
-      </div>
-    </footer>
+     <div>
+      <footer className="py-8 mt-16 text-center text-gray-500 border-t">
+        <p>© {new Date().getFullYear()} Truck-View Global Enterprise. All rights reserved.</p>
+        <p className="mt-2">Your satisfaction is our clarion call · In God we trust</p>
+      </footer>
+
+    </div>
   );
 }
