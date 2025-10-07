@@ -1,10 +1,11 @@
+"use client";
 import Hero from "@/components/Hero";
 import ServiceCard from "@/components/ServiceCard";
 import TestimonialCard from "@/components/TestimonialCard";
-import { fetchHomepage, fetchServices, fetchTestimonials, mediaURL } from "@/lib/api";
+import { fetchHome, fetchServices, fetchTestimonials, mediaURL } from "@/lib/api";
 import { BlocksRenderer } from "@strapi/blocks-react-renderer";
-// import ServiceModal from "@/components/ServiceModal";
-// import ServiceSection from "@/components/ServiceSection";
+import { motion } from "framer-motion";
+import { fetchBrands } from "@/lib/api";
 
 // Helper for media URLs
 function getMediaUrl(media: any): string | undefined {
@@ -15,18 +16,32 @@ function getMediaUrl(media: any): string | undefined {
   if (media?.url) return mediaURL(media.url);
   return undefined;
 }
-const homepageRes = await fetchHomepage();
+const homepageRes = await fetchHome();
 console.log("Homepage API response:", homepageRes);
 export default async function HomePage() {
   const [homepageRes, servicesRes, testimonialsRes] = await Promise.all([
-    fetchHomepage(),
+    fetchHome(),
     fetchServices(),
     fetchTestimonials(),
   ]);
 
-  const hpAttrs = homepageRes?.data?.attributes ?? {};
+  // Handle both old and new Strapi response formats
+const hpAttrs = homepageRes?.data?.attributes ?? homepageRes?.data ?? {};
   const svc = servicesRes?.data ?? [];
   const tms = testimonialsRes?.data ?? [];
+    const brands = await fetchBrands(); // <-- define brands here
+
+  // animations
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.2 } },
+};
+
 
   return (
     <main className="max-w-6xl p-8 mx-auto">
@@ -61,23 +76,57 @@ export default async function HomePage() {
       </section>
 
       {/* About Section (from homepage only) */}
-      {hpAttrs.about && (
-        <section className="max-w-5xl px-6 py-16 mx-auto">
-          <h2 className="mb-6 text-3xl font-bold">About Us</h2>
-          <div className="mb-6">
-            <BlocksRenderer content={hpAttrs.about} />
-          </div>
-        </section>
-      )}
+{/* ABOUT SECTION */}
+{hpAttrs.about && (
+  <section className="relative max-w-6xl px-6 py-20 mx-auto mt-16 overflow-hidden shadow-lg bg-gray-50 rounded-2xl">
+    <div className="grid items-center gap-10 md:grid-cols-2">
+      {/* Text Side */}
+      <div>
+        <h2 className="mb-4 text-4xl font-extrabold text-blue-700">About Us</h2>
+        <div className="text-lg leading-relaxed text-gray-700">
+          <BlocksRenderer content={hpAttrs.about} />
+        </div>
+        <a
+          href="/contact"
+          className="inline-block px-6 py-3 mt-6 font-semibold text-white bg-blue-700 rounded-lg shadow hover:bg-blue-800"
+        >
+          Learn More
+        </a>
+      </div>
 
-      {/* SERVICES */}
-      {/* SERVICES */}
-{svc.length > 0 && (
-  <section className="mt-16">
-    <h2 className="mb-6 text-3xl font-bold text-center">Our Services</h2>
-    {/* <ServiceSection services={svc} /> */}
+      {/* Optional Image */}
+      <div className="hidden md:block">
+        <img
+          src="/images/pic.jpg"
+          alt="TruckView Workshop"
+          className="object-cover w-full shadow-md h-80 rounded-xl"
+        />
+      </div>
+    </div>
   </section>
 )}
+
+
+      {/* SERVICES */}
+   {svc.length > 0 && (
+  <section className="mt-16">
+    <h2 className="mb-6 text-3xl font-bold text-center">Our Services</h2>
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {svc.slice(0, 4).map((s: any) => (
+     <ServiceCard key={s.id} service={s} />
+ ))}
+    </div>
+    <div className="flex justify-center mt-6">
+      <a
+        href="/services"
+        className="px-6 py-3 text-white bg-blue-600 rounded-lg shadow hover:bg-blue-700"
+      >
+        View All Services
+      </a>
+    </div>
+  </section>
+)}
+
 
       {/* QUICK STATS */}
       <section className="py-12 mt-16 text-white bg-blue-700">
@@ -104,7 +153,7 @@ export default async function HomePage() {
       {/* TESTIMONIALS */}
       {tms.length > 0 && (
         <section className="mt-16">
-          <h2 className="mb-6 text-3xl font-bold text-center">Testimonials</h2>
+          <h2 className="mb-6 text-3xl font-bold text-center">Testimonials & Reviews</h2>
           <div className="grid gap-6 sm:grid-cols-2">
             {tms.map((t: any) => {
               const at = t.attributes ?? t;
@@ -143,21 +192,8 @@ export default async function HomePage() {
 )}
 
       {/* BRANDS */}
-      <section className="py-12 mt-16 bg-gray-100">
-        <h2 className="mb-6 text-3xl font-bold text-center">We Work With</h2>
-        <div className="flex flex-wrap justify-center gap-6">
-          {["toyota.png", "mercedes.png", "volvo.png", "nissan.png"].map(
-            (logo, i) => (
-              <img
-                key={i}
-                src={`/brands/${logo}`}
-                alt="brand logo"
-                className="object-contain h-12"
-              />
-            )
-          )}
-        </div>
-      </section>
+
+
 
       {/* FAQ */}
       <section className="py-12 mt-16">
@@ -182,6 +218,33 @@ export default async function HomePage() {
           </details>
           <details className="p-4 bg-gray-100 rounded-lg">
             <summary className="font-semibold">
+              Do you offer home or roadside repairs?
+            </summary>
+            <p className="mt-2 text-gray-600">
+            Yes, we provide mobile mechanic services within Abuja and nearby locations for minor repairs and diagnostics.
+            </p>
+          </details>
+          
+                    <details className="p-4 bg-gray-100 rounded-lg">
+            <summary className="font-semibold">
+           Do you offer warranty on your repairs?
+            </summary>
+            <p className="mt-2 text-gray-600">
+             Yes, we give a 30-day warranty on all major repairs and parts replacement.
+            </p>
+          </details>
+          
+                    <details className="p-4 bg-gray-100 rounded-lg">
+            <summary className="font-semibold">
+           How do I book an appointment?
+            </summary>
+            <p className="mt-2 text-gray-600">
+            You can use the booking form on our website or contact us directly via phone or WhatsApp.
+            </p>
+          </details>
+          
+          <details className="p-4 bg-gray-100 rounded-lg">
+            <summary className="font-semibold">
               What types of vehicles do you repair?
             </summary>
             <p className="mt-2 text-gray-600">
@@ -189,6 +252,7 @@ export default async function HomePage() {
               machines.
             </p>
           </details>
+          
         </div>
       </section>
 
@@ -211,6 +275,47 @@ export default async function HomePage() {
           </a>
         </div>
       </section>
+      {/* === Trusted Brands Section === */}
+<motion.section
+  initial={{ opacity: 0, y: 30 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+  viewport={{ once: true }}
+  className="py-20 bg-gray-50"
+>
+  <h2 className="mb-10 text-3xl font-bold text-center text-gray-800">
+    Trusted by Leading Vehicle Brands
+  </h2>
+
+  <div className="flex flex-wrap items-center justify-center gap-8 px-6">
+    {brands.length > 0 ? (
+      brands.map((brand: any) => {
+        const logoUrl = brand.attributes?.logo?.data?.attributes?.url;
+        const name = brand.attributes?.name;
+        return (
+          <div
+            key={brand.id}
+            className="flex flex-col items-center justify-center w-32 h-32 p-4 transition-all bg-white shadow-md rounded-2xl hover:shadow-lg"
+          >
+            {logoUrl ? (
+              <img
+                src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${logoUrl}`}
+                alt={name}
+                className="object-contain w-20 h-20"
+              />
+            ) : (
+              <div className="text-sm text-gray-500">{name}</div>
+            )}
+            <p className="mt-3 text-sm font-medium text-gray-700">{name}</p>
+          </div>
+        );
+      })
+    ) : (
+      <p className="text-center text-gray-500">No brands available yet.</p>
+    )}
+  </div>
+</motion.section>
+
       
     </main>
   );

@@ -1,21 +1,26 @@
 "use client";
 import Link from "next/link";
+import { mediaURL } from "@/lib/api";
 
 type Props = {
   service: any | null;
-  icon?: string ;
   onClose: () => void;
 };
 
-export default function ServiceModal({ service, icon, onClose }: Props) {
+export default function ServiceModal({ service, onClose }: Props) {
   if (!service) return null;
 
   const name = service.name ?? service.title ?? "Service";
   const description = service.description ?? service.summary ?? "";
-  const iconUrl =
-    service.icon?.data?.attributes?.url ??
-    service.icon?.url ??
-    null;
+
+  // Build image URL safely
+  const iconUrl = service.icon
+    ? mediaURL(
+        service.icon?.data?.attributes?.url ??
+        service.icon?.url ??
+        service.icon
+      )
+    : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -32,25 +37,24 @@ export default function ServiceModal({ service, icon, onClose }: Props) {
 
         {iconUrl && (
           <img
-            src={icon}
+            src={iconUrl}
             alt={name}
             className="object-contain w-24 h-24 mx-auto mb-4"
           />
         )}
 
-        <h2 className="mb-4 text-2xl font-bold text-center">{service.name}</h2>
-        <p className="mb-6 text-center text-gray-600">{service.description}</p>
+        <h2 className="mb-4 text-2xl font-bold text-center">{name}</h2>
+        <p className="mb-6 text-center text-gray-600">{description}</p>
 
-                {/* Book Now button */}
-    <div className="flex justify-center">
-  <Link
-    href={`/booking?service=${encodeURIComponent(service.name)}`}
-    className="px-6 py-3 text-white bg-blue-600 rounded-lg shadow hover:bg-blue-700"
-  >
-    Book Now
-  </Link>
-</div>
-
+        {/* Book Now button */}
+        <div className="flex justify-center">
+          <Link
+            href={`/booking?service=${encodeURIComponent(name)}`}
+            className="px-6 py-3 text-white bg-blue-600 rounded-lg shadow hover:bg-blue-700"
+          >
+            Book Now
+          </Link>
+        </div>
       </div>
     </div>
   );

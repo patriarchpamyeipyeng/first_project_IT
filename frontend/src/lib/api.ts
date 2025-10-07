@@ -10,11 +10,7 @@ export function mediaURL(path?: string) {
   return `${STRAPI_URL}${path}`;
 }
 
-/**
- * Generic request helper.
- * - returns parsed JSON (the whole response body)
- * - logs helpful info when responses are not OK
- */
+
 async function request(endpoint: string, opts: RequestInit = {}) {
   const url = endpoint.startsWith("http") ? endpoint : `${STRAPI_URL}/api/${endpoint}`;
   const headers = {
@@ -47,12 +43,21 @@ async function request(endpoint: string, opts: RequestInit = {}) {
   return json;
 }
 
-/* ---------- GET helpers (return full response JSON) ---------- */
-
 /** Homepage (single type) */
-export async function fetchHomepage() {
-  return request("homepage?populate=*");
+export async function fetchHome() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!apiUrl) throw new Error("❌ Missing NEXT_PUBLIC_API_URL in .env file");
+
+  const res = await fetch(`${apiUrl}/api/homepage?populate=*`);
+
+  if (!res.ok) throw new Error("Failed to fetch homepage data");
+
+  const data = await res.json();
+  return data;
 }
+
+
 
 /** About (single type) */
 export async function fetchAbout() {
@@ -66,13 +71,45 @@ export async function fetchContactInfo() {
 
 /** Services (collection) */
 export async function fetchServices() {
-  return request("services?populate=*");
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  if (!baseUrl) {
+    throw new Error("❌ Missing NEXT_PUBLIC_API_URL in .env file");
+  }
+
+  const res = await fetch(`${baseUrl}/api/services?populate=*`, {
+    next: { revalidate: 60 },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch services: ${res.statusText}`);
+  }
+
+  return await res.json();
 }
+
 
 /** Testimonials (collection) */
 export async function fetchTestimonials() {
   return request("testimonials?populate=*");
 }
+
+/** Brands (collection) */
+export async function fetchBrands() {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!baseUrl) throw new Error("❌ Missing NEXT_PUBLIC_API_URL in .env file");
+
+  const res = await fetch(`${baseUrl}/api/brands?populate=*`, {
+    next: { revalidate: 60 },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch brands: ${res.statusText}`);
+  }
+
+  return await res.json();
+}
+
 
 /* ---------- POST helpers ---------- */
 

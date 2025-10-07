@@ -6,37 +6,38 @@ import ServiceModal from "@/components/ServiceModal";
 import { mediaURL } from "@/lib/api";
 
 export default function ServiceSection({ services }: { services: any[] }) {
-  const [selectedService, setSelectedService] = useState<any | null>(null);
+  const [selectedService, setSelectedService] = useState<any>(null);
 
   return (
     <>
-      <div
-        className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-3 ${
-          selectedService ? "blur-sm" : ""
-        }`}
-      >
-        {services.map((service: any) => {
-          const attrs = service.attributes ?? service;
-          const iconUrl =
-            attrs.icon?.data?.attributes?.url
-              ? mediaURL(attrs.icon.data.attributes.url)
-              : attrs.icon?.url
-              ? mediaURL(attrs.icon.url)
-              : undefined;
+      <div className={`${selectedService ? "blur-sm" : ""} grid gap-6 sm:grid-cols-2 md:grid-cols-3`}>
+{services
+  ?.filter((s: any) => s && (s.attributes || s.name)) // filter out undefined or empty ones
+  .map((service: any) => {
+    const attrs = service.attributes ?? service;
 
-          return (
-            <ServiceCard
-              key={service.id}
-              name={attrs.name}
-              description={attrs.description}
-              icon={iconUrl}
-              onSelect={() => setSelectedService(attrs)}
-            />
-          );
-        })}
+    const iconUrl =
+      attrs?.icon?.data?.attributes?.url
+        ? mediaURL(attrs.icon.data.attributes.url)
+        : attrs?.icon?.url
+        ? mediaURL(attrs.icon.url)
+        : undefined;
+
+    if (!attrs?.name) {
+      console.warn("Skipping service with missing name:", attrs);
+      return null;
+    }
+
+    return (
+      <ServiceCard
+        key={service.id ?? attrs.name}
+        service={{ ...attrs, icon: iconUrl }}
+      />
+    );
+  })}
+
       </div>
 
-      {/* Only client component handles modal */}
       {selectedService && (
         <ServiceModal
           service={selectedService}
