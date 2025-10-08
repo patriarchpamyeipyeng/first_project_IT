@@ -76,7 +76,7 @@ export default function BookingForm() {
         status: form.status,
         // include both keys to increase chance of matching user's schema (Strapi ignores unknown fields)
         service: form.services,
-        services: form.services,
+       
       };
 
       const res = await postAPI("bookings", payload);

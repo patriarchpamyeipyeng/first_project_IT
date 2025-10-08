@@ -96,19 +96,15 @@ export async function fetchTestimonials() {
 
 /** Brands (collection) */
 export async function fetchBrands() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!baseUrl) throw new Error("❌ Missing NEXT_PUBLIC_API_URL in .env file");
-
-  const res = await fetch(`${baseUrl}/api/brands?populate=*`, {
-    next: { revalidate: 60 },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch brands: ${res.statusText}`);
-  }
-
-  return await res.json();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/brands?populate=*`);
+  const data = await res.json();
+  console.log("Brands response:", data.data); // <-- must log the array
+  return data.data;
 }
+
+
+
+
 
 
 /* ---------- POST helpers ---------- */

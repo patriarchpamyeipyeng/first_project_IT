@@ -41,10 +41,10 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="flex flex-col gap-4 px-6 py-4 bg-gray-800 md:hidden">
-          <Link href="/" className={linkClass} onClick={() => setIsOpen(false)}>Home</Link>
+          <Link href="./" className={linkClass} onClick={() => setIsOpen(false)}>Home</Link>
           <Link href="/services" className={linkClass} onClick={() => setIsOpen(false)}>Services</Link>
           <Link href="/about" className={linkClass} onClick={() => setIsOpen(false)}>About</Link>
-          <Link href="/booking" className={linkClass} onClick={() => setIsOpen(false)}>Booking</Link> {/* ✅ Added Booking */}
+          <Link href="/booking" className={linkClass} onClick={() => setIsOpen(false)}>Booking</Link> 
           <Link href="/contact" className={linkClass} onClick={() => setIsOpen(false)}>Contact</Link>
         </div>
       )}
