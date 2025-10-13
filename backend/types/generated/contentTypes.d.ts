@@ -431,7 +431,7 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
     notes: Schema.Attribute.Blocks;
     phone: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    services: Schema.Attribute.Relation<'oneToMany', 'api::service.service'>;
+    services: Schema.Attribute.Relation<'manyToMany', 'api::service.service'>;
     stati: Schema.Attribute.Enumeration<['pending', 'confirmed', 'cancelled']> &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
@@ -576,7 +576,7 @@ export interface ApiServiceService extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    booking: Schema.Attribute.Relation<'manyToOne', 'api::booking.booking'>;
+    booking: Schema.Attribute.Relation<'manyToMany', 'api::booking.booking'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

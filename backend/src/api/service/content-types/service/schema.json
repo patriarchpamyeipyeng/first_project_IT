@@ -29,7 +29,7 @@
     },
     "booking": {
       "type": "relation",
-      "relation": "manyToOne",
+      "relation": "manyToMany",
       "target": "api::booking.booking",
       "inversedBy": "services"
     }

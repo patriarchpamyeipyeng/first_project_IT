@@ -3,13 +3,25 @@ import { useState, useEffect } from "react";
 import { createBooking, fetchServices } from "@/lib/api";
 import Link from "next/link";
 
+interface BookingForm {
+  name: string;
+  email: string;
+  phone: string;
+  date: string;
+  services: string[]; // array of selected service IDs
+  vehicleType: string;
+  location: string;
+  notes: string;
+  stati: string;
+}
+
 export default function BookingPage() {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<BookingForm>({
     name: "",
     email: "",
     phone: "",
     date: "",
-    service: "",
+    services: [],
     vehicleType: "",
     location: "",
     notes: "",
@@ -33,48 +45,67 @@ export default function BookingPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setStatus("");
-    const bookingData = {
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setStatus("");
+
+  try {
+    // Strapi expects numeric IDs for many-to-many relations
+    const selectedServiceIds = form.services.map((id) => Number(id));
+
+    const payload = {
       name: form.name,
       email: form.email,
       phone: form.phone,
       date: form.date,
       vehicleType: form.vehicleType,
       location: form.location,
-      notes: form.notes,
-      services: form.service ? [form.service] : [],
+      notes: [
+  {
+    type: "paragraph",
+    children: [{ type: "text", text: form.notes }],
+  },
+],
+services: {
+  connect: form.services.map((id) => Number(id)),
+},
+
+
       stati: form.stati,
     };
-    try {
-      const result = await createBooking(bookingData);
-      if (result) {
-        setStatus("✅ Booking submitted! We'll contact you soon.");
-        setForm({
-          name: "",
-          email: "",
-          phone: "",
-          date: "",
-          service: "",
-          vehicleType: "",
-          location: "",
-          notes: "",
-          stati: "pending",
-        });
-      } else {
-        setStatus("❌ Error submitting booking. Please try again.");
-      }
-    } catch (err) {
+
+    console.log("📦 Sending booking:", payload);
+
+    const result = await createBooking(payload); // ✅ Don't wrap again as { data: payload }
+    console.log("✅ Strapi Response:", result);
+
+    if (result) {
+      setStatus("✅ Booking submitted! We'll contact you soon.");
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        date: "",
+        services: [],
+        vehicleType: "",
+        location: "",
+        notes: "",
+        stati: "pending",
+      });
+    } else {
       setStatus("❌ Error submitting booking. Please try again.");
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err: any) {
+    console.error("Booking error:", err);
+    setStatus("❌ Error submitting booking. Please check the console.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
-    
     <main className="max-w-2xl p-8 mx-auto mt-10 bg-white shadow rounded-xl">
       <h1 className="mb-2 text-3xl font-extrabold text-center text-blue-700">
         Book a Car Service
@@ -161,26 +192,38 @@ export default function BookingPage() {
             rows={3}
           />
         </div>
+
+        {/* ✅ Services as checkboxes */}
         <div>
-          <label className="block mb-1 font-semibold">Service</label>
-          <select
-            name="service"
-            value={form.service}
-            onChange={handleChange}
-            className="w-full p-3 border rounded focus:outline-blue-500"
-            required
-          >
-            <option value="">Select a service</option>
-            {services.map((svc: any) => {
-              const attrs = svc.attributes || svc;
-              return (
-                <option key={svc.id} value={svc.id}>
-                  {attrs.name || attrs.title || "Service"}
-                </option>
-              );
-            })}
-          </select>
+          <label className="block mb-1 font-semibold">Services</label>
+          <div className="space-y-2">
+{services.map((svc: any) => {
+  const attrs = svc.attributes || svc;
+  const svcId = String(svc.id); // ✅ convert to string
+  return (
+    <label key={svcId} className="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        value={svcId}
+        checked={form.services.includes(svcId)}
+        onChange={(e) => {
+          const value = e.target.value;
+          setForm({
+            ...form,
+            services: form.services.includes(value)
+              ? form.services.filter((id) => id !== value)
+              : [...form.services, value],
+          });
+        }}
+      />
+      <span>{attrs.name || attrs.title || "Service"}</span>
+    </label>
+  );
+})}
+
+          </div>
         </div>
+
         <button
           type="submit"
           className="w-full py-3 font-bold text-white transition bg-blue-600 rounded hover:bg-blue-700"
@@ -189,23 +232,25 @@ export default function BookingPage() {
           {loading ? "Submitting..." : "Submit Booking"}
         </button>
       </form>
-{status && (
-  <div
-    className={`mt-6 text-center font-semibold ${
-      status.startsWith("✅") ? "text-green-600" : "text-red-600"
-    }`}
-  >
-    {status}
-    {status.startsWith("✅") && (
-      <div className="mt-2 text-blue-700">
-        <strong>Booking Status:</strong> {form.stati}
-      </div>
-    )}
-  </div>
-)}
-<Link href="/booking/status" className="text-blue-600 hover:underline">
-Check Booking Status
-</Link>
+
+      {status && (
+        <div
+          className={`mt-6 text-center font-semibold ${
+            status.startsWith("✅") ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {status}
+          {status.startsWith("✅") && (
+            <div className="mt-2 text-blue-700">
+              <strong>Booking Status:</strong> {form.stati}
+            </div>
+          )}
+        </div>
+      )}
+
+      <Link href="/booking/status" className="text-blue-600 hover:underline">
+        Check Booking Status
+      </Link>
     </main>
   );
 }

@@ -15,12 +15,12 @@
       "type": "string",
       "required": true
     },
-    "services": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::service.service",
-      "mappedBy": "booking"
-    },
+"services": {
+  "type": "relation",
+  "relation": "manyToMany",
+  "target": "api::service.service",
+  "mappedBy": "booking"
+},
     "email": {
       "type": "string",
       "required": true
